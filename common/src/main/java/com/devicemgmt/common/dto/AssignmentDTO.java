@@ -8,6 +8,7 @@ public class AssignmentDTO implements Serializable {
     private String deviceCode;
     private String deviceName;
     private String assignedTo;
+    private int userId;
     private String department;
     private int assignedBy;
     private String assignedByName;
@@ -31,6 +32,9 @@ public class AssignmentDTO implements Serializable {
 
     public String getDeviceName()               { return deviceName; }
     public void setDeviceName(String deviceName){ this.deviceName = deviceName; }
+
+    public int getUserId()                  { return userId; }
+    public void setUserId(int userId)       { this.userId = userId; }
 
     public String getAssignedTo()               { return assignedTo; }
     public void setAssignedTo(String assignedTo){ this.assignedTo = assignedTo; }

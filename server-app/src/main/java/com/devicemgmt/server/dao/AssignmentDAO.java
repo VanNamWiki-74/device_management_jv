@@ -1,13 +1,20 @@
 package com.devicemgmt.server.dao;
 
-import com.devicemgmt.common.dto.AssignmentDTO;
-import com.devicemgmt.server.db.ConnectionManager;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import com.devicemgmt.common.dto.AssignmentDTO;
+import com.devicemgmt.server.db.ConnectionManager;
 
 public class AssignmentDAO {
     private static final Logger log = LoggerFactory.getLogger(AssignmentDAO.class);
@@ -76,7 +83,7 @@ public class AssignmentDAO {
 
     public int insert(AssignmentDTO a) {
         String sql = """
-            INSERT INTO assignments (device_id, assigned_to, department, assigned_by,
+            INSERT INTO assignments (device_id, user_id, assigned_to, department, assigned_by,
                 assigned_date, expected_return, status, notes)
             VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?)
             RETURNING id
@@ -87,15 +94,16 @@ public class AssignmentDAO {
             conn.setAutoCommit(false);
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, a.getDeviceId());
-            ps.setString(2, a.getAssignedTo());
-            ps.setString(3, a.getDepartment());
-            if (a.getAssignedBy() > 0) ps.setInt(4, a.getAssignedBy());
-            else ps.setNull(4, Types.INTEGER);
-            ps.setDate(5, Date.valueOf(a.getAssignedDate()));
+            ps.setInt(2, a.getUserId());
+            ps.setString(3, a.getAssignedTo());
+            ps.setString(4, a.getDepartment());
+            if (a.getAssignedBy() > 0) ps.setInt(5, a.getAssignedBy());
+            else ps.setNull(5, Types.INTEGER);
+            ps.setDate(6, Date.valueOf(a.getAssignedDate()));
             if (a.getExpectedReturn() != null && !a.getExpectedReturn().isBlank())
-                ps.setDate(6, Date.valueOf(a.getExpectedReturn()));
-            else ps.setNull(6, Types.DATE);
-            ps.setString(7, a.getNotes());
+                ps.setDate(7, Date.valueOf(a.getExpectedReturn()));
+            else ps.setNull(7, Types.DATE);
+            ps.setString(8, a.getNotes());
             ResultSet rs = ps.executeQuery();
             int id = -1;
             if (rs.next()) id = rs.getInt(1);
@@ -166,6 +174,7 @@ public class AssignmentDAO {
         AssignmentDTO a = new AssignmentDTO();
         a.setId(rs.getInt("id"));
         a.setDeviceId(rs.getInt("device_id"));
+        a.setUserId(rs.getInt("user_id"));
         a.setDeviceCode(rs.getString("device_code"));
         a.setDeviceName(rs.getString("device_name"));
         a.setAssignedTo(rs.getString("assigned_to"));

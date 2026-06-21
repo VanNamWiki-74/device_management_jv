@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS devices (
 CREATE TABLE IF NOT EXISTS assignments (
     id              SERIAL PRIMARY KEY,
     device_id       INT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+    user_id         INT NOT NULL REFERENCES users(id) ON DELETE SET NULL,
     assigned_to     VARCHAR(100) NOT NULL,
     department      VARCHAR(100),
     assigned_by     INT REFERENCES users(id) ON DELETE SET NULL,
@@ -82,6 +83,28 @@ CREATE TABLE IF NOT EXISTS assignments (
     notes           TEXT,
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS approvals_status (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(20) UNIQUE NOT NULL,
+    description     TEXT
+);
+
+
+CREATE TABLE IF NOT EXISTS approvals_types (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(20) UNIQUE NOT NULL,
+    description     TEXT
+);
+
+CREATE TABLE IF NOT EXISTS approvals (
+    id              SERIAL PRIMARY KEY,
+    approver_id     INT NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+    approval_type   INT NOT NULL REFERENCES approvals_types(id) ON DELETE SET NULL,
+    approval_date   TIMESTAMP NOT NULL DEFAULT NOW(),
+    status          VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    comments        TEXT
 );
 
 -- System logs
@@ -120,10 +143,9 @@ INSERT INTO user_roles (name, description) VALUES
 ('USER',  'Regular user with limited access')
 
 -- Default admin user (password: Admin@123)
-INSERT INTO users (username, password_hash, full_name, email, role_id) VALUES
-('admin', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.PTE3Wi', 'Quản trị viên', 'admin@company.com', 1),
-()
-('user1', '$2a$12$eImiTXuWVxfM37uY4JANjQ4nrM61F8OiELOdBmFaBFvh1f5WqAC1a', 'Nguyễn Văn A', 'nguyenvana@company.com', 2)
+INSERT INTO users (username, password_hash, full_name, email, role_id, manager_id) VALUES
+('admin', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.PTE3Wi', 'Quản trị viên', 'admin@company.com', 1, NULL),
+('user1', '$2a$12$eImiTXuWVxfM37uY4JANjQ4nrM61F8OiELOdBmFaBFvh1f5WqAC1a', 'Nguyễn Văn A', 'nguyenvana@company.com', 2, 1)
 ON CONFLICT (username) DO NOTHING;
 
 -- Device categories
@@ -176,10 +198,32 @@ INSERT INTO devices (code, name, category_id, location_id, brand, model, serial_
 ON CONFLICT (code) DO NOTHING;
 
 -- Sample assignments
-INSERT INTO assignments (device_id, assigned_to, department, assigned_by, assigned_date, status, notes) VALUES
-(1, 'Trần Văn B', 'IT', 1, '2023-01-20', 'ACTIVE', 'Cấp cho nhân viên IT'),
-(2, 'Giám đốc Nguyễn', 'Ban Giám đốc', 1, '2022-06-05', 'ACTIVE', 'Văn phòng giám đốc'),
-(3, 'Lê Thị C', 'IT', 1, '2023-03-15', 'ACTIVE', NULL),
-(5, 'Phạm Văn D', 'Kế toán', 1, '2022-09-10', 'ACTIVE', 'Máy tính kế toán trưởng'),
-(6, 'Hoàng Thị E', 'Nhân sự', 1, '2023-02-05', 'ACTIVE', NULL)
+INSERT INTO assignments (device_id, user_id, assigned_to, department, assigned_by, assigned_date, status, notes) VALUES
+(1, 2, 'IT', 1, '2023-01-20', 'ACTIVE', 'Cấp cho nhân viên IT'),
+(2, 3, 'Ban Giám đốc', 1, '2022-06-05', 'ACTIVE', 'Văn phòng giám đốc'),
+(3, 4, 'IT', 1, '2023-03-15', 'ACTIVE', NULL),
+(5, 5, 'Kế toán', 1, '2022-09-10', 'ACTIVE', 'Máy tính kế toán trưởng'),
+(6, 6, 'Nhân sự', 1, '2023-02-05', 'ACTIVE', NULL)
+ON CONFLICT DO NOTHING;
+
+--sample approval status
+INSERT INTO approvals_status (name, description) VALUES
+('PENDING', 'Đang chờ phê duyệt'),
+('APPROVED', 'Đã phê duyệt'),
+('REJECTED', 'Đã từ chối')
+ON CONFLICT (name) DO NOTHING;
+
+
+--Sample approval types
+INSERT INTO approvals_types (name, description) VALUES
+('CẤP MỚI', 'Phê duyệt mua thiết bị mới'),
+('SỬA CHỮA', 'Phê duyệt sửa chữa thiết bị'),
+('THANH LÝ', 'Phê duyệt thanh lý thiết bị')
+ON CONFLICT (name) DO NOTHING;
+
+--Sample approvals
+INSERT INTO approvals (approver_id , approval_type, status, comments) VALUES
+(1, 1, 2, 'Đồng ý mua thiết bị mới'),
+(2, 2, 1, 'Đang xem xét sửa chữa'),
+(3, 3, 3, 'Không đồng ý thanh lý')
 ON CONFLICT DO NOTHING;

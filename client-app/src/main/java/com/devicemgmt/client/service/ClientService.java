@@ -122,7 +122,7 @@ public class ClientService {
         return sendAuth(Actions.DELETE_CATEGORY, data);
     }
 
-    // ---- Locations ----
+    
     public List<LocationDTO> getLocations() {
         Response resp = sendAuth(Actions.GET_LOCATIONS, null);
         if (resp.isSuccess() && resp.getData() != null) {
@@ -144,7 +144,7 @@ public class ClientService {
         return sendAuth(Actions.DELETE_LOCATION, data);
     }
 
-    // ---- Assignments ----
+    
     public Response getAssignments(String keyword, String filter, int page, int pageSize) {
         Request req = authRequest(Actions.GET_ASSIGNMENTS);
         req.setKeyword(keyword); req.setFilter(filter);
@@ -177,7 +177,7 @@ public class ClientService {
         return sendAuth(Actions.DELETE_ASSIGNMENT, data);
     }
 
-    // ---- Users ----
+   
     public Response getUsers(String keyword, int page, int pageSize) {
         Request req = authRequest(Actions.GET_USERS);
         req.setKeyword(keyword); req.setPage(page); req.setPageSize(pageSize);

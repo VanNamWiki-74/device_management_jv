@@ -34,6 +34,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+
 public class DevicePanel extends VBox {
     private final ClientService svc;
     private TableView<DeviceDTO> table;
@@ -66,10 +67,12 @@ public class DevicePanel extends VBox {
         searchField = UIHelper.searchField("🔍 Tìm theo mã, tên, hãng...");
         statusFilter = UIHelper.comboBox("Trạng thái", "Tất cả", "AVAILABLE", "IN_USE", "MAINTENANCE", "BROKEN", "DISPOSED");
         statusFilter.setValue("Tất cả");
+        if (!svc.isAdmin()) { statusFilter.setDisable(true); statusFilter.setDisable(true); }
 
         Button searchBtn = UIHelper.primaryBtn("Tìm kiếm");
         Button addBtn    = UIHelper.successBtn("+ Thêm thiết bị");
         Button exportBtn = UIHelper.secondaryBtn("↑ Xuất CSV");
+
         Button importBtn = UIHelper.secondaryBtn("↓ Nhập CSV");
         Button refreshBtn = UIHelper.secondaryBtn("↺ Làm mới");
 
@@ -136,59 +139,63 @@ public class DevicePanel extends VBox {
         colModel.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getModel()));
         colModel.setPrefWidth(100);
 
-        TableColumn<DeviceDTO, String> colStatus = new TableColumn<>("Trạng thái");
-        colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatusDisplay()));
-        colStatus.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setGraphic(null); return; }
-                DeviceDTO d = getTableView().getItems().get(getIndex());
-                Label lbl = new Label(item);
-                lbl.setStyle(Styles.statusBadge(d.getStatus()));
-                setGraphic(lbl);
-            }
-        });
-        colStatus.setPrefWidth(110);
-
-        TableColumn<DeviceDTO, String> colWarranty = new TableColumn<>("Hết BH");
-        colWarranty.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getWarrantyExpiry()));
-        colWarranty.setPrefWidth(100);
-
-        TableColumn<DeviceDTO, String> colActions = new TableColumn<>("Thao tác");
-        colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button editBtn = UIHelper.primaryBtn("Sửa");
-            private final Button delBtn  = UIHelper.dangerBtn("Xóa");
-            {
-                editBtn.setPadding(new Insets(4, 10, 4, 10));
-                delBtn.setPadding(new Insets(4, 10, 4, 10));
-                if (!svc.isAdmin()) { editBtn.setDisable(true); delBtn.setDisable(true); }
-                editBtn.setOnAction(e -> {
+        if (svc.isAdmin()) {
+            TableColumn<DeviceDTO, String> colStatus = new TableColumn<>("Trạng thái");
+            colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatusDisplay()));
+            colStatus.setCellFactory(col -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); return; }
                     DeviceDTO d = getTableView().getItems().get(getIndex());
-                    DeviceDTO result = DeviceDialog.show(d, svc, (Stage) getScene().getWindow());
-                    if (result != null) loadData();
-                });
-                delBtn.setOnAction(e -> {
-                    DeviceDTO d = getTableView().getItems().get(getIndex());
-                    if (UIHelper.showConfirm("Xóa thiết bị", "Bạn có chắc muốn xóa thiết bị [" + d.getCode() + "] " + d.getName() + "?")) {
-                        Response resp = svc.deleteDevice(d.getId());
-                        if (resp.isSuccess()) { UIHelper.showAlert(Alert.AlertType.INFORMATION, "Thành công", resp.getMessage()); loadData(); }
-                        else UIHelper.showAlert(Alert.AlertType.ERROR, "Lỗi", resp.getMessage());
-                    }
-                });
-            }
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) { setGraphic(null); return; }
-                HBox box = new HBox(6, editBtn, delBtn);
-                box.setAlignment(Pos.CENTER);
-                setGraphic(box);
-            }
-        });
-        colActions.setPrefWidth(130);
+                    Label lbl = new Label(item);
+                    lbl.setStyle(Styles.statusBadge(d.getStatus()));
+                    setGraphic(lbl);
+                }
+            });
+            colStatus.setPrefWidth(110);
 
-        table.getColumns().addAll(colCode, colName, colCat, colLoc, colBrand, colModel, colStatus, colWarranty, colActions);
+            TableColumn<DeviceDTO, String> colWarranty = new TableColumn<>("Hết BH");
+            colWarranty.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getWarrantyExpiry()));
+            colWarranty.setPrefWidth(100);
+
+            TableColumn<DeviceDTO, String> colActions = new TableColumn<>("Thao tác");
+            colActions.setCellFactory(col -> new TableCell<>() {
+                private final Button editBtn = UIHelper.primaryBtn("Sửa");
+                private final Button delBtn  = UIHelper.dangerBtn("Xóa");
+                {
+                    editBtn.setPadding(new Insets(4, 10, 4, 10));
+                    delBtn.setPadding(new Insets(4, 10, 4, 10));
+                    if (!svc.isAdmin()) { editBtn.setDisable(true); delBtn.setDisable(true); }
+                    editBtn.setOnAction(e -> {
+                        DeviceDTO d = getTableView().getItems().get(getIndex());
+                        DeviceDTO result = DeviceDialog.show(d, svc, (Stage) getScene().getWindow());
+                        if (result != null) loadData();
+                    });
+                    delBtn.setOnAction(e -> {
+                        DeviceDTO d = getTableView().getItems().get(getIndex());
+                        if (UIHelper.showConfirm("Xóa thiết bị", "Bạn có chắc muốn xóa thiết bị [" + d.getCode() + "] " + d.getName() + "?")) {
+                            Response resp = svc.deleteDevice(d.getId());
+                            if (resp.isSuccess()) { UIHelper.showAlert(Alert.AlertType.INFORMATION, "Thành công", resp.getMessage()); loadData(); }
+                            else UIHelper.showAlert(Alert.AlertType.ERROR, "Lỗi", resp.getMessage());
+                        }
+                    });
+                }
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) { setGraphic(null); return; }
+                    HBox box = new HBox(6, editBtn, delBtn);
+                    box.setAlignment(Pos.CENTER);
+                    setGraphic(box);
+                }
+            });
+            colActions.setPrefWidth(130);
+            table.getColumns().addAll(colCode, colName, colCat, colLoc, colBrand, colModel, colStatus, colWarranty, colActions);
+        }
+        
+
+        table.getColumns().addAll(colCode, colName, colCat, colLoc, colBrand, colModel);
     }
 
     private HBox buildPagination() {

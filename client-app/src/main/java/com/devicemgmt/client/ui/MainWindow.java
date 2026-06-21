@@ -96,16 +96,22 @@ public class MainWindow {
 
         // Menu items: label -> panel factory
         Map<String, java.util.function.Supplier<javafx.scene.Node>> menus = new LinkedHashMap<>();
-        menus.put("📊  Dashboard",      () -> new DashboardPanel(ClientService.getInstance()));
-        menus.put("💻  Thiết bị",       () -> new DevicePanel(ClientService.getInstance()));
-        menus.put("📁  Danh mục",       () -> new CategoryPanel(ClientService.getInstance()));
-        menus.put("📍  Vị trí",         () -> new LocationPanel(ClientService.getInstance()));
-        menus.put("📋  Phân công",      () -> new AssignmentPanel(ClientService.getInstance()));
-        
         if (user.isAdmin()) {
+            menus.put("📊  Dashboard",      () -> new DashboardPanel(ClientService.getInstance()));
             menus.put("👥  Người dùng", () -> new UserPanel(ClientService.getInstance()));
             menus.put("📜  Nhật ký",    () -> new LogPanel(ClientService.getInstance()));
+            menus.put("📍  Vị trí",         () -> new LocationPanel(ClientService.getInstance()));
+            menus.put("📋  Phân công",      () -> new AssignmentPanel(ClientService.getInstance()));
+
+
         }
+
+        
+        menus.put("💻  Thiết bị",       () -> new DevicePanel(ClientService.getInstance()));
+        menus.put("📁  Danh mục",       () -> new CategoryPanel(ClientService.getInstance()));
+        menus.put("📋  Phê duyệt",      () -> new AssignmentPanel(ClientService.getInstance()));
+        
+        
 
         ToggleGroup group = new ToggleGroup();
         boolean[] first = {true};

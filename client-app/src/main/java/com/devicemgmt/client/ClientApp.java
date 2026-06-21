@@ -1,6 +1,7 @@
 package com.devicemgmt.client;
 
 import com.devicemgmt.client.ui.LoginWindow;
+
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;

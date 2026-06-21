@@ -1,17 +1,34 @@
 package com.devicemgmt.client.ui;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.devicemgmt.client.service.ClientService;
-import com.devicemgmt.client.ui.panel.*;
+import com.devicemgmt.client.ui.panel.AssignmentPanel;
+import com.devicemgmt.client.ui.panel.CategoryPanel;
+import com.devicemgmt.client.ui.panel.DashboardPanel;
+import com.devicemgmt.client.ui.panel.DevicePanel;
+import com.devicemgmt.client.ui.panel.LocationPanel;
+import com.devicemgmt.client.ui.panel.LogPanel;
+import com.devicemgmt.client.ui.panel.UserPanel;
 import com.devicemgmt.common.dto.UserDTO;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class MainWindow {
 
@@ -84,6 +101,7 @@ public class MainWindow {
         menus.put("📁  Danh mục",       () -> new CategoryPanel(ClientService.getInstance()));
         menus.put("📍  Vị trí",         () -> new LocationPanel(ClientService.getInstance()));
         menus.put("📋  Phân công",      () -> new AssignmentPanel(ClientService.getInstance()));
+        
         if (user.isAdmin()) {
             menus.put("👥  Người dùng", () -> new UserPanel(ClientService.getInstance()));
             menus.put("📜  Nhật ký",    () -> new LogPanel(ClientService.getInstance()));
@@ -162,14 +180,14 @@ public class MainWindow {
     private static String sidebarBtnStyle(boolean selected) {
         if (selected) {
             return """
-                -fx-background-color: """ + Styles.SIDEBAR_ACTIVE + """;
+                -fx-background-color: %s;
                 -fx-text-fill: white;
                 -fx-font-size: 13px;
                 -fx-alignment: CENTER_LEFT;
                 -fx-cursor: hand;
                 -fx-border-color: transparent;
-                """;
-        }
+                """.formatted(Styles.SIDEBAR_ACTIVE);
+                    }
         return """
             -fx-background-color: transparent;
             -fx-text-fill: #CBD5E1;

@@ -1,5 +1,11 @@
 package com.devicemgmt.client.ui.panel;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+
 import com.devicemgmt.client.service.ClientService;
 import com.devicemgmt.client.ui.Styles;
 import com.devicemgmt.client.ui.UIHelper;
@@ -8,20 +14,25 @@ import com.devicemgmt.common.dto.DeviceDTO;
 import com.devicemgmt.common.dto.Response;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
 
 public class DevicePanel extends VBox {
     private final ClientService svc;
@@ -212,9 +223,9 @@ public class DevicePanel extends VBox {
                     totalPages = Math.max(1, resp.getTotalPages());
                     totalLabel.setText("Tổng: " + resp.getTotalCount() + " thiết bị");
                     // Update pagination
-                    for (javafx.scene.Node n : ((VBox) getChildren().get(3)).getChildrenUnmodifiable()) {
-                        // skip - handled via updatePagination
-                    }
+                    // for (javafx.scene.Node n : ((VBox) getChildren().get(3)).getChildrenUnmodifiable()) {
+                    //     // skip - handled via updatePagination
+                    // }
                     updatePagination(resp.getTotalCount());
                 }
             });

@@ -3,6 +3,13 @@
 -- PostgreSQL 16
 -- =====================================================
 
+-- Users roles
+CREATE TABLE IF NOT EXISTS user_roles (
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(20)  UNIQUE NOT NULL,
+    description TEXT
+);
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id          SERIAL PRIMARY KEY,
@@ -11,13 +18,17 @@ CREATE TABLE IF NOT EXISTS users (
     full_name   VARCHAR(100) NOT NULL,
     email       VARCHAR(200),
     phone       VARCHAR(100),
-    role        VARCHAR(20)  NOT NULL DEFAULT 'USER',
+    role_id     INT REFERENCES user_roles(id) ON DELETE SET NULL,
+    manager_id          INT REFERENCES users(id) ON DELETE SET NULL,
     is_active   BOOLEAN      NOT NULL DEFAULT TRUE,
     failed_login_count INT   NOT NULL DEFAULT 0,
     locked_until TIMESTAMP,
     created_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP    NOT NULL DEFAULT NOW()
 );
+
+
+
 
 -- Device categories
 CREATE TABLE IF NOT EXISTS device_categories (
@@ -102,10 +113,17 @@ CREATE INDEX IF NOT EXISTS idx_logs_username      ON system_logs(username);
 -- Seed data
 -- =====================================================
 
+INSERT INTO user_roles (name, description) VALUES
+('ADMIN', 'Administrator with full access'),
+('MANAGER', 'Manager with elevated access'),
+('IT-STAFF', 'IT staff with technical access'),
+('USER',  'Regular user with limited access')
+
 -- Default admin user (password: Admin@123)
-INSERT INTO users (username, password_hash, full_name, email, role) VALUES
-('admin', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.PTE3Wi', 'Quản trị viên', 'admin@company.com', 'ADMIN'),
-('user1', '$2a$12$eImiTXuWVxfM37uY4JANjQ4nrM61F8OiELOdBmFaBFvh1f5WqAC1a', 'Nguyễn Văn A', 'nguyenvana@company.com', 'USER')
+INSERT INTO users (username, password_hash, full_name, email, role_id) VALUES
+('admin', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.PTE3Wi', 'Quản trị viên', 'admin@company.com', 1),
+()
+('user1', '$2a$12$eImiTXuWVxfM37uY4JANjQ4nrM61F8OiELOdBmFaBFvh1f5WqAC1a', 'Nguyễn Văn A', 'nguyenvana@company.com', 2)
 ON CONFLICT (username) DO NOTHING;
 
 -- Device categories

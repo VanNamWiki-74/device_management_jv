@@ -47,18 +47,14 @@ public class ConnectionManager {
     }
 
     public Connection getConnection() throws SQLException {
-        try {
-            Connection conn = pool.poll();
-            if (conn == null || conn.isClosed()) {
-                conn = createConnection();
-            }
-            return conn;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new SQLException("Interrupted while waiting for connection");
-        }
-    }
+        Connection conn = pool.poll();
 
+        if (conn == null || conn.isClosed()) {
+            conn = createConnection();
+        }
+
+        return conn;
+    }
     public void releaseConnection(Connection conn) {
         if (conn != null) {
             try {

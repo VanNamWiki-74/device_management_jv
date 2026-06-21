@@ -1,15 +1,22 @@
 package com.devicemgmt.client.service;
 
-import com.devicemgmt.client.ServerConnection;
-import com.devicemgmt.common.constants.Actions;
-import com.devicemgmt.common.dto.*;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.devicemgmt.client.ServerConnection;
+import com.devicemgmt.common.constants.Actions;
+import com.devicemgmt.common.dto.AssignmentDTO;
+import com.devicemgmt.common.dto.CategoryDTO;
+import com.devicemgmt.common.dto.DashboardDTO;
+import com.devicemgmt.common.dto.DeviceDTO;
+import com.devicemgmt.common.dto.LocationDTO;
+import com.devicemgmt.common.dto.Request;
+import com.devicemgmt.common.dto.Response;
+import com.devicemgmt.common.dto.UserDTO;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 public class ClientService {
     private static final ClientService INSTANCE = new ClientService();
@@ -23,7 +30,7 @@ public class ClientService {
 
     public static ClientService getInstance() { return INSTANCE; }
 
-    // ---- Auth ----
+    
     public Response login(String username, String password) {
         JsonObject data = new JsonObject();
         data.addProperty("username", username);
@@ -53,7 +60,7 @@ public class ClientService {
         return sendAuth(Actions.CHANGE_PASSWORD, data);
     }
 
-    // ---- Devices ----
+    
     public Response getDevices(String keyword, String filter, int page, int pageSize) {
         Request req = authRequest(Actions.GET_DEVICES);
         req.setKeyword(keyword); req.setFilter(filter);
@@ -93,7 +100,7 @@ public class ClientService {
         return sendAuth(Actions.IMPORT_DEVICES, data);
     }
 
-    // ---- Categories ----
+   
     public List<CategoryDTO> getCategories() {
         Response resp = sendAuth(Actions.GET_CATEGORIES, null);
         if (resp.isSuccess() && resp.getData() != null) {
